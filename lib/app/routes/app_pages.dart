@@ -7,6 +7,8 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/favorites/bindings/favorites_binding.dart';
 import '../modules/favorites/views/favorites_view.dart';
+import '../modules/image_preview/bindings/media_preview_binding.dart';
+import '../modules/image_preview/views/media_preview_view.dart';
 import '../widgets/main_tab_view.dart';
 import 'app_routes.dart';
 
@@ -55,6 +57,14 @@ class AppPages {
       name: Routes.FAVORITES,
       page: () => const FavoritesView(),
       binding: FavoritesBinding(),
+    ),
+
+    // 媒体预览
+    GetPage(
+      name: Routes.MEDIA_PREVIEW,
+      page: () => const MediaPreviewView(),
+      binding: MediaPreviewBinding(),
+      transition: Transition.noTransition,
     ),
   ];
 }

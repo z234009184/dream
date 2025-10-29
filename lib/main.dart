@@ -11,6 +11,8 @@ import 'app/services/storage_service.dart';
 import 'app/services/theme_service.dart';
 import 'app/services/media_service.dart';
 import 'app/services/favorites_service.dart';
+import 'app/services/video_controller_service.dart';
+import 'app/services/video_thumbnail_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +44,8 @@ void main() async {
     await Get.putAsync(() => ThemeService().init());
     await Get.putAsync(() => MediaService().init());
     await Get.putAsync(() => FavoritesService().init());
+    Get.put(VideoControllerService()); // 视频控制器服务
+    Get.put(VideoThumbnailCacheService()); // 视频缩略图缓存服务
     logger.i('✅ 核心服务初始化完成');
   } catch (e) {
     logger.e('❌ 核心服务初始化失败: $e');

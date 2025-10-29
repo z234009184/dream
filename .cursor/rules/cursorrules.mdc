@@ -1,0 +1,750 @@
+---
+alwaysApply: true
+---
+# 🌟 Glasso 项目开发规范 - Cursor AI Rules
+
+## 📋 项目概述
+
+**项目名称**: Glasso  
+**项目类型**: 纯离线 iOS 应用（壁纸 + 心情日记）  
+**技术栈**: Flutter + GetX + Cupertino  
+**目标平台**: iOS (App Store)  
+
+---
+
+## 🎯 核心技术栈
+
+### 框架与架构
+- **Flutter SDK**: ^3.0.0
+- **状态管理**: GetX ^4.7.2 (响应式 + 路由)
+- **UI 风格**: 纯 Cupertino (iOS 原生风格)
+- **架构模式**: StatelessWidget + GetX Controller + Service
+
+### 核心依赖
+```yaml
+get: ^4.7.2                           # 状态管理 + 路由
+get_storage: ^2.1.1                   # 本地存储
+liquid_glass_renderer: ^0.1.1-dev.25  # 液体玻璃 UI
+extended_image: ^10.0.1               # 图片/GIF + 手势
+video_player: ^2.9.2                  # 视频播放
+flutter_staggered_grid_view: ^0.7.0   # 瀑布流
+flutter_animate: ^4.5.2               # 动画
+logger: ^2.6.2                        # 日志
+```
+
+---
+
+## 🚦 开发流程规范
+
+### ⚠️ 重要：禁止直接写代码！
+
+当用户提出新需求时，**必须**按照以下 4 个阶段进行：
+
+### 📍 阶段 1: 需求澄清 (Requirement Clarification)
+
+**行动**: 通过提问深入理解需求
+
+**必问问题**:
+1. **功能目标**: 
+   - 这个功能要解决什么问题？
+   - 用户使用场景是什么？
+   - 预期的用户体验是什么样的？
+
+2. **UI/UX 细节**:
+   - 需要什么样的视觉效果？（动画、过渡、交互）
+   - 是否有参考设计或现有 App 作为参考？
+   - 是否需要适配深色模式？
+
+3. **数据处理**:
+   - 数据来源是什么？（本地资源/用户输入）
+   - 数据如何存储？（内存/本地持久化）
+   - 是否需要缓存策略？
+
+4. **性能要求**:
+   - 是否有性能指标？（CPU/内存/帧率）
+   - 是否涉及大量数据/媒体文件？
+   - 是否需要预加载/懒加载？
+
+5. **边界条件**:
+   - 空状态如何处理？
+   - 错误情况如何处理？
+   - 是否需要加载状态？
+
+**输出格式**:
+```markdown
+## 📋 需求澄清
+
+### 用户需求
+- [原始需求描述]
+
+### 待确认问题
+1. [问题 1]
+2. [问题 2]
+3. [问题 3]
+...
+
+请确认以上问题后，我将进入技术方案设计阶段。
+```
+
+---
+
+### 📍 阶段 2: 技术方案设计 (Technical Design)
+
+**行动**: 在需求明确后，设计技术方案
+
+**必须包含**:
+1. **架构设计**:
+   - 使用哪些模块？（Controller / Service / Widget）
+   - 数据流向如何？
+   - 状态如何管理？
+
+2. **文件结构**:
+   - 需要创建哪些新文件？
+   - 需要修改哪些现有文件？
+   - 文件命名和组织方式
+
+3. **关键技术点**:
+   - 使用哪些第三方库？
+   - 如何实现核心功能？
+   - 是否需要原生插件？
+
+4. **性能优化策略**:
+   - 如何避免性能问题？
+   - 是否需要缓存？
+   - 资源管理策略
+
+5. **风险点**:
+   - 潜在的技术难点
+   - 可能的性能瓶颈
+   - 备选方案
+
+**输出格式**:
+```markdown
+## 🏗️ 技术方案
+
+### 架构设计
+- **涉及模块**: [模块列表]
+- **数据流**: [描述数据流]
+- **状态管理**: [如何管理状态]
+
+### 文件结构
+📁 新增文件:
+- `lib/app/modules/xxx/controllers/xxx_controller.dart`
+- `lib/app/modules/xxx/views/xxx_view.dart`
+- ...
+
+📝 修改文件:
+- `lib/app/routes/app_routes.dart` - 添加路由
+- ...
+
+### 关键技术
+1. [技术点 1]
+2. [技术点 2]
+...
+
+### 性能优化
+- [优化策略 1]
+- [优化策略 2]
+
+### 风险评估
+⚠️ [风险点 1]: [解决方案]
+⚠️ [风险点 2]: [解决方案]
+
+确认方案无误后，我将开始实现代码。
+```
+
+---
+
+### 📍 阶段 3: 实现计划 (Implementation Plan)
+
+**行动**: 制定分步实现计划
+
+**必须包含**:
+1. 实现顺序（按依赖关系）
+2. 每一步的具体工作
+3. 测试验证点
+
+**输出格式**:
+```markdown
+## ✅ 实现计划
+
+### Step 1: [步骤名称]
+- 创建 `xxx_controller.dart`
+- 实现状态管理逻辑
+- 验证: [如何验证]
+
+### Step 2: [步骤名称]
+- 创建 `xxx_view.dart`
+- 实现 UI 布局
+- 验证: [如何验证]
+
+### Step 3: [步骤名称]
+- 配置路由
+- 集成到主应用
+- 验证: [如何验证]
+
+开始实现？
+```
+
+---
+
+### 📍 阶段 4: 代码实现 (Code Implementation)
+
+**行动**: 按照计划逐步实现代码
+
+**代码规范**:
+
+#### 1. 文件命名
+- Controller: `xxx_controller.dart`
+- View: `xxx_view.dart`
+- Binding: `xxx_binding.dart`
+- Service: `xxx_service.dart`
+- Widget: `xxx_widget.dart`
+- Model: `xxx.dart`
+
+#### 2. 类命名
+- Controller: `XxxController extends GetxController`
+- View: `XxxView extends StatelessWidget` 或 `extends GetView<XxxController>`
+- Service: `XxxService extends GetxService`
+- Model: `class Xxx`
+
+#### 3. 变量命名
+- 响应式变量: `final xxx = 0.obs;` 或 `final Rx<Type> xxx = Rx<Type>(value);`
+- 私有变量: `_xxx`
+- 常量: `kXxx` 或 `const xxx`
+- 服务单例: `static XxxService get to => Get.find();`
+
+#### 4. 代码组织
+```dart
+// 1. Imports (分组：Dart -> Flutter -> 第三方 -> 项目内部)
+import 'dart:async';
+import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+import '../../../services/xxx_service.dart';
+
+// 2. Class 定义
+class XxxController extends GetxController {
+  // 2.1 依赖注入
+  final XxxService _service = XxxService.to;
+  
+  // 2.2 响应式变量
+  final loading = false.obs;
+  final data = <Type>[].obs;
+  
+  // 2.3 生命周期
+  @override
+  void onInit() {
+    super.onInit();
+    // 初始化逻辑
+  }
+  
+  @override
+  void onClose() {
+    // 清理逻辑
+    super.onClose();
+  }
+  
+  // 2.4 公共方法
+  Future<void> loadData() async {
+    // 业务逻辑
+  }
+  
+  // 2.5 私有方法
+  void _helperMethod() {
+    // 辅助逻辑
+  }
+}
+```
+
+#### 5. UI 组件规范
+```dart
+class XxxView extends GetView<XxxController> {
+  const XxxView({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.transparent, // 显示渐变背景
+      child: Obx(() {
+        // 响应式 UI
+        if (controller.loading.value) {
+          return _buildLoading();
+        }
+        
+        if (controller.data.isEmpty) {
+          return _buildEmpty();
+        }
+        
+        return _buildContent();
+      }),
+    );
+  }
+  
+  // 拆分构建方法
+  Widget _buildLoading() => /* ... */;
+  Widget _buildEmpty() => /* ... */;
+  Widget _buildContent() => /* ... */;
+}
+```
+
+#### 6. 性能优化规范
+- ✅ **图片优化**: 使用 `cacheWidth` 限制解码尺寸
+- ✅ **列表优化**: 使用 `ListView.builder` 或 `SliverList`
+- ✅ **视频优化**: 全局单例播放器，及时释放
+- ✅ **状态优化**: 最小化 `Obx` 范围，避免不必要的重建
+- ✅ **内存优化**: 及时清理资源，避免内存泄漏
+
+#### 7. 日志规范
+```dart
+final Logger _logger = Logger();
+
+_logger.d('调试信息');      // Debug
+_logger.i('普通信息');      // Info
+_logger.w('警告信息');      // Warning
+_logger.e('错误信息');      // Error
+```
+
+#### 8. 注释规范
+```dart
+/// 类级别文档注释
+/// 
+/// 详细说明类的功能和用途
+class XxxController extends GetxController {
+  /// 方法文档注释
+  /// 
+  /// 参数说明：
+  /// - [param1]: 参数1说明
+  /// - [param2]: 参数2说明
+  /// 
+  /// 返回值：返回值说明
+  Future<void> methodName(Type param1, Type param2) async {
+    // 🔥 重要逻辑的行内注释
+    // ✅ 完成标记
+    // ⚠️ 警告标记
+  }
+}
+```
+
+---
+
+## 🎨 UI/UX 规范
+
+### Cupertino 风格强制要求
+- ✅ 使用 `CupertinoPageScaffold` 而不是 `Scaffold`
+- ✅ 使用 `CupertinoButton` 而不是 `ElevatedButton`
+- ✅ 使用 `CupertinoNavigationBar` 或 `CupertinoSliverNavigationBar`
+- ✅ 使用 `CupertinoAlertDialog` 而不是 `AlertDialog`
+- ✅ 使用 `CupertinoColors` 而不是 `Colors`
+- ✅ 遵循 iOS Human Interface Guidelines
+
+### 动画规范
+```dart
+// 标准动画时长
+const fastDuration = Duration(milliseconds: 150);
+const normalDuration = Duration(milliseconds: 220);
+const slowDuration = Duration(milliseconds: 300);
+
+// 使用 flutter_animate
+widget
+  .animate()
+  .fadeIn(duration: 220.ms)
+  .moveY(begin: 10, end: 0)
+  .scale(begin: const Offset(0.98, 0.98));
+```
+
+### Liquid Glass UI
+```dart
+LiquidGlass(
+  settings: LiquidGlassSettings(
+    glassColor: const Color.fromARGB(25, 255, 255, 255),
+    saturation: 1.2,
+    refractiveIndex: 1.15,
+    thickness: 10,
+    lightIntensity: 1.5,
+    chromaticAberration: 0.3,
+  ),
+  shape: const LiquidRoundedSuperellipse(
+    borderRadius: Radius.circular(12),
+  ),
+  child: /* 内容 */,
+)
+```
+
+### 主题颜色
+```dart
+// 主色调
+static const primaryColor = Color(0xFF5E17EB);
+
+// 系统颜色（自适应主题）
+CupertinoColors.systemBackground.resolveFrom(context)
+CupertinoColors.label.resolveFrom(context)
+CupertinoColors.secondaryLabel.resolveFrom(context)
+```
+
+---
+
+## 🔒 强制约束
+
+### ❌ 禁止事项
+1. **禁止使用 Material Design 组件**（除非特殊说明）
+2. **禁止使用网络请求**（纯离线应用）
+3. **禁止收集用户数据**（符合 Apple 隐私政策）
+4. **禁止直接修改第三方库代码**
+5. **禁止使用 StatefulWidget**（除非有明确理由）
+6. **禁止在 View 中写业务逻辑**
+7. **禁止硬编码字符串**（使用国际化）
+8. **禁止忽略错误处理**
+
+### ✅ 必须事项
+1. **必须使用 GetX 进行状态管理**
+2. **必须使用 GetX 路由系统**
+3. **必须使用 StatelessWidget + Controller 模式**
+4. **必须在 Controller 的 onClose 中清理资源**
+5. **必须使用响应式变量 (Rx)**
+6. **必须使用 Obx 包裹响应式 UI**
+7. **必须处理加载/空/错误状态**
+8. **必须添加适当的日志**
+9. **必须考虑性能优化**
+10. **必须遵循 iOS 设计规范**
+
+---
+
+## 📐 架构模式参考
+
+### 完整模块示例
+
+#### 1. Model (数据模型)
+```dart
+// lib/app/data/models/item.dart
+class Item {
+  final String id;
+  final String name;
+  
+  Item({required this.id, required this.name});
+  
+  // JSON 序列化
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+    id: json['id'] as String,
+    name: json['name'] as String,
+  );
+  
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+  };
+}
+```
+
+#### 2. Repository (数据仓库)
+```dart
+// lib/app/data/repositories/item_repository.dart
+class ItemRepository {
+  Future<List<Item>> getItems() async {
+    // 从本地资源或存储获取数据
+  }
+}
+```
+
+#### 3. Service (全局服务)
+```dart
+// lib/app/services/item_service.dart
+class ItemService extends GetxService {
+  static ItemService get to => Get.find();
+  
+  final _logger = Logger();
+  final _items = <Item>[].obs;
+  
+  Future<ItemService> init() async {
+    _logger.i('ItemService 初始化');
+    await _loadItems();
+    return this;
+  }
+  
+  Future<void> _loadItems() async {
+    // 加载数据
+  }
+  
+  @override
+  void onClose() {
+    _logger.d('ItemService 关闭');
+    super.onClose();
+  }
+}
+```
+
+#### 4. Controller (页面控制器)
+```dart
+// lib/app/modules/items/controllers/items_controller.dart
+class ItemsController extends GetxController {
+  final Logger _logger = Logger();
+  final ItemService _service = ItemService.to;
+  
+  final loading = false.obs;
+  final items = <Item>[].obs;
+  
+  @override
+  void onInit() {
+    super.onInit();
+    _logger.d('ItemsController 初始化');
+    loadItems();
+  }
+  
+  Future<void> loadItems() async {
+    loading.value = true;
+    try {
+      items.value = await _service.getItems();
+    } catch (e) {
+      _logger.e('加载失败: $e');
+    } finally {
+      loading.value = false;
+    }
+  }
+  
+  @override
+  void onClose() {
+    _logger.d('ItemsController 关闭');
+    super.onClose();
+  }
+}
+```
+
+#### 5. Binding (依赖注入)
+```dart
+// lib/app/modules/items/bindings/items_binding.dart
+class ItemsBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<ItemsController>(() => ItemsController());
+  }
+}
+```
+
+#### 6. View (页面视图)
+```dart
+// lib/app/modules/items/views/items_view.dart
+class ItemsView extends GetView<ItemsController> {
+  const ItemsView({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.transparent,
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverNavigationBar(
+            largeTitle: const Text('标题'),
+          ),
+          Obx(() {
+            if (controller.loading.value) {
+              return SliverFillRemaining(
+                child: _buildLoading(),
+              );
+            }
+            
+            if (controller.items.isEmpty) {
+              return SliverFillRemaining(
+                child: _buildEmpty(),
+              );
+            }
+            
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = controller.items[index];
+                  return _ItemTile(item: item);
+                },
+                childCount: controller.items.length,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildLoading() => const Center(
+    child: CupertinoActivityIndicator(),
+  );
+  
+  Widget _buildEmpty() => Center(
+    child: Text(
+      '暂无数据',
+      style: TextStyle(
+        color: CupertinoColors.secondaryLabel,
+      ),
+    ),
+  );
+}
+
+class _ItemTile extends StatelessWidget {
+  const _ItemTile({required this.item});
+  final Item item;
+  
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoListTile(
+      title: Text(item.name),
+      trailing: const CupertinoListTileChevron(),
+      onTap: () {
+        // 跳转详情
+        Get.toNamed(Routes.ITEM_DETAIL, arguments: item);
+      },
+    );
+  }
+}
+```
+
+#### 7. Routes (路由配置)
+```dart
+// lib/app/routes/app_routes.dart
+abstract class Routes {
+  static const ITEMS = '/items';
+  static const ITEM_DETAIL = '/item_detail';
+}
+
+// lib/app/routes/app_pages.dart
+static final routes = [
+  GetPage(
+    name: Routes.ITEMS,
+    page: () => const ItemsView(),
+    binding: ItemsBinding(),
+  ),
+  // ...
+];
+```
+
+---
+
+## 🔍 特殊场景处理
+
+### 视频播放
+```dart
+// 使用全局单例服务
+final controller = await VideoControllerService.to.switchTo(videoPath);
+
+// 页面关闭时释放
+@override
+void onClose() {
+  VideoControllerService.to.release();
+  super.onClose();
+}
+```
+
+### 图片优化
+```dart
+ExtendedImage.asset(
+  imagePath,
+  fit: BoxFit.cover,
+  cacheWidth: (MediaQuery.of(context).size.width * 
+    MediaQuery.of(context).devicePixelRatio).round(),
+)
+```
+
+### 国际化
+```dart
+// 使用
+Text('key'.tr)
+
+// 定义 (lib/app/core/i18n/translation_service.dart)
+class TranslationService extends Translations {
+  @override
+  Map<String, Map<String, String>> get keys => {
+    'zh_CN': {'key': '中文'},
+    'en_US': {'key': 'English'},
+  };
+}
+```
+
+---
+
+## 📊 性能指标要求
+
+### 目标性能
+- **CPU 占用**:
+  - 静止状态: < 5%
+  - 滚动状态: < 15%
+  - 视频播放: < 35%
+  
+- **内存占用**:
+  - 基础: < 50MB
+  - 图片加载: < 100MB
+  - 视频播放: < 150MB
+  
+- **帧率**: 稳定 60 FPS
+
+### 性能监控
+```dart
+// 使用 Logger 记录性能数据
+_logger.d('加载耗时: ${stopwatch.elapsedMilliseconds}ms');
+```
+
+---
+
+## ✅ 验收标准
+
+每个功能完成后，必须通过以下检查：
+
+### 代码质量
+- [ ] 无 Lint 错误
+- [ ] 无编译警告
+- [ ] 代码格式化 (`flutter format`)
+- [ ] 遵循命名规范
+- [ ] 添加必要注释
+
+### 功能完整
+- [ ] 实现所有需求功能
+- [ ] 处理加载状态
+- [ ] 处理空状态
+- [ ] 处理错误状态
+- [ ] 添加适当动画
+
+### 性能测试
+- [ ] CPU 占用符合要求
+- [ ] 内存占用符合要求
+- [ ] 无内存泄漏
+- [ ] 滚动流畅 (60 FPS)
+
+### 用户体验
+- [ ] 符合 iOS 设计规范
+- [ ] 动画流畅自然
+- [ ] 交互响应及时
+- [ ] 支持深色模式
+- [ ] 支持多语言
+
+---
+
+## 🤖 AI 助手工作流程总结
+
+当收到用户需求时，请严格按照以下步骤执行：
+
+```
+1️⃣ 需求澄清
+   ↓ (提问 → 确认)
+   
+2️⃣ 技术方案设计
+   ↓ (设计架构 → 评估风险 → 确认)
+   
+3️⃣ 实现计划
+   ↓ (分步骤 → 制定验证点 → 确认)
+   
+4️⃣ 代码实现
+   ↓ (逐步实现 → 测试验证)
+   
+5️⃣ 验收检查
+   ✅ 完成
+```
+
+### 关键原则
+- 🚫 **永远不要跳过需求澄清阶段**
+- 🚫 **永远不要在方案未确认前写代码**
+- 🚫 **永远不要忽略性能优化**
+- ✅ **始终考虑用户体验**
+- ✅ **始终遵循架构规范**
+- ✅ **始终编写高质量代码**
+
+---
+
+**规则版本**: v1.0  
+**最后更新**: 2025-10-27  
+**项目**: Glasso - Flutter + GetX iOS App
+

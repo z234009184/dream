@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../controllers/recommend_controller.dart';
 import '../../../widgets/wallpaper_masonry.dart';
-import '../../image_preview/views/image_preview_view.dart';
+import '../../../widgets/media_viewer.dart';
+import '../../../data/models/wallpaper.dart';
 import '../../../services/theme_service.dart';
+import '../../../routes/app_routes.dart';
 
 /// 推荐页视图
 class RecommendView extends GetView<RecommendController> {
@@ -54,7 +56,7 @@ class RecommendView extends GetView<RecommendController> {
                   ),
                   tileBuilder: (c, i) {
                     final item = controller.wallpapers[i];
-                    final tag = 'image_$i'; // 使用统一的索引tag，方便PageView匹配
+                    final tag = 'wallpaper_${item.path}'; // 使用路径作为唯一tag
                     final aspect = i == 0 ? (3 / 2) : (3 / 4);
 
                     final mq = MediaQuery.of(c);
@@ -65,18 +67,11 @@ class RecommendView extends GetView<RecommendController> {
 
                     return WallpaperCard(
                       tag: tag,
-                      image: Image.asset(
-                        item.path,
+                      image: MediaViewer(
+                        path: item.path,
+                        mediaType: item.mediaType,
                         fit: BoxFit.cover,
                         cacheWidth: cacheWidth,
-                        filterQuality: FilterQuality.low,
-                        frameBuilder: (ctx, child, frame, wasSync) {
-                          if (frame != null) return child;
-                          return Container(
-                            color: CupertinoColors.secondarySystemBackground
-                                .resolveFrom(ctx),
-                          );
-                        },
                       ),
                       isFavorite: item.isFavorite,
                       onTap: () {
@@ -88,6 +83,14 @@ class RecommendView extends GetView<RecommendController> {
                       aspectRatio: aspect,
                       showFavoriteButton: false, // 隐藏列表页的收藏按钮
                       index: i, // 传入索引
+                      isVideo: item.mediaType == MediaType.video, // 是否为视频
+                      onLongPress: item.mediaType == MediaType.video
+                          ? () {
+                              // 长按视频卡片时触发震动并预览
+                              HapticFeedback.mediumImpact();
+                              controller.previewVideo(i);
+                            }
+                          : null,
                     );
                   },
                 ),
@@ -132,26 +135,10 @@ class RecommendView extends GetView<RecommendController> {
     // 准备图片列表（所有壁纸的路径）
     final imageList = controller.wallpapers.map((w) => w.path).toList();
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: false, // 透明背景
-        barrierColor: CupertinoColors.black, // 黑色遮罩
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return ImagePreviewView(
-            imagePath: item.path,
-            heroTag: tag,
-            showFavorite: true,
-            showSave: true,
-            imageList: imageList, // 传入图片列表
-            initialIndex: index, // 传入当前索引
-          );
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // 背景渐变动画
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
+    // 🔥 使用 GetX 路由，自动管理控制器生命周期
+    Get.toNamed(
+      Routes.MEDIA_PREVIEW,
+      arguments: {'mediaList': imageList, 'initialIndex': index},
     );
   }
 }

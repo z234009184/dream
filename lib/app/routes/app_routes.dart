@@ -16,4 +16,7 @@ abstract class Routes {
 
   // 收藏
   static const FAVORITES = '/favorites';
+
+  // 媒体预览
+  static const MEDIA_PREVIEW = '/media_preview';
 }

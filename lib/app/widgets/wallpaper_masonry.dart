@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:glasso/app/core/theme/app_theme.dart';
-import 'package:heroine/heroine.dart';
 
 typedef WallpaperTileBuilder = Widget Function(BuildContext context, int index);
 
@@ -57,10 +56,12 @@ class WallpaperCard extends StatelessWidget {
     this.aspectRatio = 3 / 4, // 默认 3:4，避免无限高度
     this.showFavoriteButton = true, // 是否显示收藏按钮
     this.index, // 用于 PageView 的索引
+    this.isVideo = false, // 是否为视频
+    this.onLongPress, // 长按回调
   });
 
   final String tag;
-  final Image image;
+  final Widget image; // 改为 Widget，支持 MediaViewer
   final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback onToggleFavorite;
@@ -68,15 +69,17 @@ class WallpaperCard extends StatelessWidget {
   final double aspectRatio;
   final bool showFavoriteButton;
   final int? index;
+  final bool isVideo; // 是否为视频
+  final VoidCallback? onLongPress; // 长按回调
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
-      child: Heroine(
+      onLongPress: onLongPress,
+      child: Hero(
         tag: tag,
-        motion: CupertinoMotion.bouncy(extraBounce: 0.05),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -94,6 +97,8 @@ class WallpaperCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   RepaintBoundary(child: image),
+                  // 实况标识（视频）
+                  if (isVideo) Positioned(top: 8, left: 8, child: _LiveBadge()),
                   if (showFavoriteButton)
                     Positioned(
                       top: 8,
@@ -107,6 +112,21 @@ class WallpaperCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// 实况标识（Live Badge）- 类似 iOS Live Photos
+class _LiveBadge extends StatelessWidget {
+  const _LiveBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/images/others/live_photo_line.png',
+      width: 24,
+      height: 24,
+      fit: BoxFit.cover,
+    ).animate().fadeIn(duration: 200.ms).scale(begin: const Offset(0.8, 0.8));
   }
 }
 

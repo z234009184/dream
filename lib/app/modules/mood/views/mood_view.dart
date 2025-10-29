@@ -30,18 +30,6 @@ class MoodView extends GetView<MoodController> {
               heroTag: 'mood_nav_bar', // 唯一的 Hero tag
               brightness: isDark ? Brightness.dark : Brightness.light,
               largeTitle: Text('tab_mood'.tr),
-              trailing: CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  // TODO: 分享心情
-                },
-                child: Icon(
-                  CupertinoIcons.share,
-                  color: AppTheme.primary(),
-                  size: 24,
-                ),
-              ),
             ),
 
             // 分类筛选栏
