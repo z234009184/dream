@@ -19,4 +19,16 @@ abstract class Routes {
 
   // 媒体预览
   static const MEDIA_PREVIEW = '/media_preview';
+
+  // 心情详情
+  static const MOOD_DETAIL = '/mood_detail';
+
+  // FAQ
+  static const FAQ = '/faq';
+
+  // 用户协议
+  static const USER_AGREEMENT = '/user_agreement';
+
+  // 隐私政策
+  static const PRIVACY_POLICY = '/privacy_policy';
 }

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dream</string>
+	<string>Glasso</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>dream</string>
+	<string>glasso</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -47,9 +47,12 @@
 	<true/>
 
 	<!-- 相册权限描述 -->
+	<!-- iOS 14+ 保存照片权限（只写权限，推荐使用） -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>需要保存壁纸到相册。</string>
+	<string>Glasso 需要保存壁纸到您的相册。我们只会保存您主动选择的壁纸，不会读取或访问相册中的其他内容。</string>
+	
+	<!-- iOS 14 以下相册访问权限 -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>需要访问相册以保存或管理壁纸。</string>
+	<string>Glasso 需要保存壁纸到您的相册。我们只会保存您主动选择的壁纸，不会读取或访问相册中的其他内容。</string>
 </dict>
 </plist>

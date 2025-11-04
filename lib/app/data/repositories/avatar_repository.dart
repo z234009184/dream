@@ -1,39 +1,57 @@
 import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
+import 'package:logger/logger.dart';
+import '../models/avatar.dart';
 
 /// 头像资源仓库
 class AvatarRepository {
+  final Logger _logger = Logger();
+
   static final AvatarRepository _instance = AvatarRepository._internal();
   factory AvatarRepository() => _instance;
   AvatarRepository._internal();
 
   List<String> _avatarPaths = [];
-  bool _isLoaded = false;
 
-  /// 加载所有头像资源
-  Future<void> loadAvatars() async {
-    if (_isLoaded) return;
+  /// 递归读取 assets/images/avatars 目录所有图片文件
+  Future<List<Avatar>> loadAvatars() async {
+    _logger.i('正在加载 AssetManifest.json...');
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = jsonDecode(manifestContent);
 
-    try {
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    _logger.d('开始扫描资源，寻找路径为 "assets/images/avatars/" 的头像...');
 
-      _avatarPaths = manifestMap.keys
-          .where((String key) => key.startsWith('assets/images/avatars/'))
-          .where(
-            (String key) =>
-                key.endsWith('.jpg') ||
-                key.endsWith('.png') ||
-                key.endsWith('.jpeg'),
-          )
-          .toList();
+    final List<String> avatarPaths = manifestMap.keys
+        .where((path) => path.startsWith('assets/images/avatars/'))
+        .where(
+          (path) =>
+              path.endsWith('.png') ||
+              path.endsWith('.jpg') ||
+              path.endsWith('.jpeg') ||
+              path.endsWith('.webp'),
+        )
+        .toList();
 
-      _isLoaded = true;
-      print('✅ 已加载 ${_avatarPaths.length} 张头像');
-    } catch (e) {
-      print('⚠️  加载头像失败: $e');
+    if (avatarPaths.isEmpty) {
+      _logger.w(
+        '警告：在 AssetManifest.json 中未找到任何以 "assets/images/avatars/" 开头的资源。',
+      );
+      _logger.d('--- AssetManifest.json 中包含的全部资源路径 (部分示例) ---');
+      manifestMap.keys.take(20).forEach((key) => _logger.d(key));
+      _logger.d('----------------------------------------------------');
+      _avatarPaths = [];
+      return [];
     }
+
+    // 写入缓存供其他模块（如 MoodRepository）按索引或随机获取
+    _avatarPaths = avatarPaths;
+
+    final List<Avatar> avatars = avatarPaths
+        .map((p) => Avatar(path: p))
+        .toList();
+    _logger.i('扫描完成！找到了 ${avatars.length} 个头像。');
+    return avatars;
   }
 
   /// 获取随机头像路径
@@ -46,14 +64,7 @@ class AvatarRepository {
   /// 根据索引获取头像（用于固定分配）
   String? getAvatarByIndex(int index) {
     if (_avatarPaths.isEmpty) return null;
-    return _avatarPaths[index % _avatarPaths.length];
+    final i = index % _avatarPaths.length;
+    return _avatarPaths[i];
   }
-
-  /// 根据主题获取头像
-  List<String> getAvatarsByTheme(String theme) {
-    return _avatarPaths.where((path) => path.contains('/$theme/')).toList();
-  }
-
-  /// 获取所有头像
-  List<String> getAllAvatars() => List.from(_avatarPaths);
 }

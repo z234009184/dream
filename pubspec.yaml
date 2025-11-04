@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8 # 图标
   get: ^4.7.2 # 状态管理 + 路由
-  liquid_glass_renderer: 0.1.1-dev.26 # 液体玻璃效果
+  liquid_glass_renderer: 0.2.0-dev.3 # 液体玻璃效果
   get_storage: ^2.1.1 # 本地存储
   permission_handler: ^12.0.1 # 权限管理
   gal: ^2.3.2 # 保存到相册
@@ -44,6 +44,7 @@ flutter:
     - assets/images/avatars/cute/
     - assets/images/avatars/minimal/
     - assets/images/avatars/vintage/
+    - assets/images/avatars/
     - assets/images/others/
     
     # 视频资源

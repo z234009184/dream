@@ -8,6 +8,8 @@ import '../../../data/repositories/wallpaper_repository.dart';
 import '../../../services/favorites_service.dart';
 import '../../../services/video_controller_service.dart';
 import '../../../routes/app_routes.dart';
+import '../../../data/models/avatar.dart';
+import '../../../data/repositories/avatar_repository.dart';
 
 /// 推荐页控制器
 class RecommendController extends GetxController {
@@ -17,6 +19,15 @@ class RecommendController extends GetxController {
 
   final RxBool loading = false.obs;
   final RxList<Wallpaper> wallpapers = <Wallpaper>[].obs;
+  final RxInt refreshKey = 0.obs; // 刷新标识，用于触发列表重建
+  final RxBool loadingAvatars = true.obs; // ✨ 新增：头像加载状态
+
+  // 新增字段
+  final RxInt currentTab = 0.obs; // 0:壁纸 1:头像
+  final RxList<Avatar> avatars = <Avatar>[].obs;
+  final RxInt refreshAvatarKey = 0.obs; // 头像刷新用key
+
+  late final AvatarRepository _avatarRepo;
 
   // 滚动控制与自动滚动
   final ScrollController scrollController = ScrollController();
@@ -35,7 +46,9 @@ class RecommendController extends GetxController {
   void onInit() {
     super.onInit();
     _logger.i('RecommendController 初始化');
+    _avatarRepo = AvatarRepository();
     loadWallpapers();
+    loadAvatars();
     ever<Set<String>>(fav.favoriteWallpaperPaths, (_) => _syncFavorites());
 
     // 启动空闲检测
@@ -90,6 +103,41 @@ class RecommendController extends GetxController {
     } finally {
       loading.value = false;
     }
+  }
+
+  Future<void> loadAvatars() async {
+    _logger.i('开始加载头像...');
+    try {
+      loadingAvatars.value = true;
+      final loaded = await _avatarRepo.loadAvatars();
+      _logger.i('加载到 ${loaded.length} 个头像');
+      avatars.assignAll(loaded);
+      if (loaded.isNotEmpty) {
+        _randomizeAvatars();
+      }
+    } catch (e) {
+      _logger.e('加载头像失败: $e');
+      avatars.clear(); // 确保列表为空
+    } finally {
+      loadingAvatars.value = false;
+      _logger.i('头像加载完成');
+    }
+  }
+
+  Future<void> refreshAvatars() async {
+    _randomizeAvatars();
+    refreshAvatarKey.value++;
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  void _randomizeAvatars() {
+    final shuffled = List<Avatar>.from(avatars);
+    shuffled.shuffle();
+    avatars.assignAll(shuffled);
+  }
+
+  void switchTab(int idx) {
+    currentTab.value = idx;
   }
 
   // ============ 自动滚动控制 ============
@@ -158,5 +206,25 @@ class RecommendController extends GetxController {
       Routes.MEDIA_PREVIEW,
       arguments: {'mediaList': imageList, 'initialIndex': index},
     );
+  }
+
+  /// 刷新壁纸列表（随机重排）
+  Future<void> refreshWallpapers() async {
+    try {
+      _logger.d('刷新壁纸列表');
+
+      // 增加刷新计数，触发列表重建
+      refreshKey.value++;
+
+      // 随机打乱壁纸顺序
+      wallpapers.shuffle();
+
+      // 模拟加载延迟，提供更好的用户体验
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      _logger.d('壁纸列表已刷新');
+    } catch (e) {
+      _logger.e('刷新壁纸失败: $e');
+    }
   }
 }

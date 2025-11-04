@@ -297,10 +297,10 @@ packages:
     dependency: "direct main"
     description:
       name: liquid_glass_renderer
-      sha256: c13d30d31d1244bccd56b1cce9f8121241c4e4b8c10d57c81329c2919beb38b3
+      sha256: "906e5cbc6240064be23f304219836ca1ac6a6f1c34b91005b3934ca5b63d24e2"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.1-dev.26"
+    version: "0.2.0-dev.3"
   logger:
     dependency: "direct main"
     description:

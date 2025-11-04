@@ -391,6 +391,7 @@ CupertinoColors.secondaryLabel.resolveFrom(context)
 6. **禁止在 View 中写业务逻辑**
 7. **禁止硬编码字符串**（使用国际化）
 8. **禁止忽略错误处理**
+9. **禁止创建独立的 .md 文档**（所有更新记录在 README.md 的更新日志中）
 
 ### ✅ 必须事项
 1. **必须使用 GetX 进行状态管理**

@@ -36,16 +36,21 @@ class MoodRepository {
     return moodsWithAvatars;
   }
 
-  /// 所有语录数据（精选550条）
-  static final List<Mood> _allQuotes = [
-    ..._feelingQuotes,
-    ..._motivationQuotes,
-    ..._movieLinesQuotes,
-    ..._famousQuotes,
-    ..._loveQuotes,
-    ..._lifeQuotes,
-    ..._translationQuotes,
-  ];
+  /// 获取所有语录数据（精选550条）
+  ///
+  /// 🔥 重要：每次调用都重置 ID 计数器，确保 ID 的一致性
+  static List<Mood> get _allQuotes {
+    _id = 0; // 重置 ID 计数器
+    return [
+      ..._feelingQuotes,
+      ..._motivationQuotes,
+      ..._movieLinesQuotes,
+      ..._famousQuotes,
+      ..._loveQuotes,
+      ..._lifeQuotes,
+      ..._translationQuotes,
+    ];
+  }
 
   // ==================== 💭 心情语录（100条）====================
   static final List<Mood> _feelingQuotes = [

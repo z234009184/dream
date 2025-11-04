@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:heroine/heroine.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import '../controllers/mood_controller.dart';
 import '../../../data/models/mood.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../services/theme_service.dart';
+import '../../../routes/app_routes.dart';
 
 /// 心情页视图
 class MoodView extends GetView<MoodController> {
@@ -31,6 +33,9 @@ class MoodView extends GetView<MoodController> {
               brightness: isDark ? Brightness.dark : Brightness.light,
               largeTitle: Text('tab_mood'.tr),
             ),
+
+            // 下拉刷新
+            CupertinoSliverRefreshControl(onRefresh: controller.refreshMoods),
 
             // 分类筛选栏
             SliverPersistentHeader(
@@ -59,16 +64,23 @@ class MoodView extends GetView<MoodController> {
                   top: 16,
                   bottom: MediaQuery.of(context).padding.bottom + 64 + 10,
                 ),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final mood = controller.filteredMoods[index];
-                    return _MoodCard(
-                      key: ValueKey(mood.id),
-                      mood: mood,
-                      index: index,
-                    );
-                  }, childCount: controller.filteredMoods.length),
-                ),
+                sliver: Obx(() {
+                  // 监听 refreshKey 以触发列表重建
+                  controller.refreshKey.value;
+
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final mood = controller.filteredMoods[index];
+                      return _MoodCard(
+                        key: ValueKey(
+                          '${mood.id}_${controller.refreshKey.value}',
+                        ),
+                        mood: mood,
+                        index: index,
+                      );
+                    }, childCount: controller.filteredMoods.length),
+                  );
+                }),
               ),
           ],
         );
@@ -146,9 +158,7 @@ class _CategoryFilter extends StatelessWidget {
                     controller.selectCategory(key);
                   },
                   child: FakeGlass(
-                    shape: LiquidRoundedSuperellipse(
-                      borderRadius: Radius.circular(20),
-                    ),
+                    shape: LiquidRoundedSuperellipse(borderRadius: 20),
                     settings: LiquidGlassSettings(
                       glassColor: AppTheme.primary().withAlpha(50),
                       blur: isSelected ? 10 : 6,
@@ -239,7 +249,8 @@ class _MoodCardState extends State<_MoodCard> {
           child: GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              // TODO: 打开心情详情
+              // 打开心情详情
+              Get.toNamed(Routes.MOOD_DETAIL, arguments: widget.mood);
             },
             child: Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -274,38 +285,42 @@ class _MoodCardState extends State<_MoodCard> {
                     children: [
                       // 头像
                       if (widget.mood.avatarPath != null)
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              color: widget.mood.color.withOpacity(0.3),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: widget.mood.color.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                        Heroine(
+                          tag: 'mood_avatar_${widget.mood.id}',
+                          motion: const CupertinoMotion.bouncy(),
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                color: widget.mood.color.withOpacity(0.3),
+                                width: 2,
                               ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(23),
-                            child: Image.asset(
-                              widget.mood.avatarPath!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: widget.mood.color.withOpacity(0.1),
-                                  child: Icon(
-                                    CupertinoIcons.person_fill,
-                                    color: widget.mood.color,
-                                    size: 24,
-                                  ),
-                                );
-                              },
+                              boxShadow: [
+                                BoxShadow(
+                                  color: widget.mood.color.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(23),
+                              child: Image.asset(
+                                widget.mood.avatarPath!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: widget.mood.color.withOpacity(0.1),
+                                    child: Icon(
+                                      CupertinoIcons.person_fill,
+                                      color: widget.mood.color,
+                                      size: 24,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),

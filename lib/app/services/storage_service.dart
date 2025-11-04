@@ -16,6 +16,7 @@ class StorageService extends GetxService {
   static const String keyFirstLaunch = 'first_launch';
   static const String keyFavoriteWallpapers = 'favorite_wallpapers';
   static const String keyFavoriteQuotes = 'favorite_quotes';
+  static const String keyFavoriteMoods = 'favorite_moods';
 
   Future<StorageService> init() async {
     try {
@@ -77,5 +78,3 @@ class StorageService extends GetxService {
     await save(keyFirstLaunch, false);
   }
 }
-
-

@@ -27,7 +27,7 @@ class MediaPreviewView extends StatelessWidget {
           fit: StackFit.expand,
           alignment: Alignment.center,
           children: [
-            // 主媒体展示区域
+            // 媒体展示区
             Obx(
               () => _MediaGallery(
                 mediaList: controller.mediaList,
@@ -35,8 +35,7 @@ class MediaPreviewView extends StatelessWidget {
                 onPageChanged: controller.onPageChanged,
               ),
             ),
-
-            // 顶部返回按钮
+            // 顶部返回按钮用玻璃、卡片感突出
             Positioned(
               top: 0,
               left: 0,
@@ -46,24 +45,54 @@ class MediaPreviewView extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Align(
                     alignment: Alignment.topLeft,
-                    child: _GlassButton(
-                      icon: CupertinoIcons.back,
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        Get.back();
-                      },
+                    child: LiquidGlassLayer(
+                      child: LiquidGlass(
+                        shape: const LiquidRoundedSuperellipse(
+                          borderRadius: 54,
+                        ),
+                        child: Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(23),
+                            border: Border.all(
+                              color: CupertinoColors.white.withOpacity(0.25),
+                              width: 0.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: CupertinoColors.black.withOpacity(0.10),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minSize: 44,
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              Get.back();
+                            },
+                            child: const Icon(
+                              CupertinoIcons.back,
+                              color: CupertinoColors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-
-            // 底部操作栏
+            // 底部操作栏，单独包裹LiquidGlassLayer
             Positioned(
               bottom: 10,
               child: SafeArea(
-                child: Obx(
-                  () => _BottomActionBar(imagePath: controller.currentPath),
+                child: LiquidGlassLayer(
+                  child: _BottomActionBar(imagePath: controller.currentPath),
                 ),
               ),
             ),
@@ -256,125 +285,99 @@ class _VideoItem extends StatelessWidget {
   }
 }
 
-/// 玻璃按钮 - StatelessWidget
-class _GlassButton extends StatelessWidget {
-  const _GlassButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: SizedBox(
-        height: 44,
-        width: 44,
-        child: LiquidGlass(
-          settings: LiquidGlassSettings(
-            thickness: 20,
-            blur: 5,
-            lightIntensity: 1.5,
-            chromaticAberration: 0.3,
-          ),
-          shape: const LiquidRoundedSuperellipse(
-            borderRadius: Radius.circular(12),
-          ),
-          child: Center(
-            child: Icon(icon, color: CupertinoColors.white, size: 24),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// 底部操作栏 - StatelessWidget
 class _BottomActionBar extends StatelessWidget {
   const _BottomActionBar({required this.imagePath});
-
   final String imagePath;
 
   @override
   Widget build(BuildContext context) {
     final fav = FavoritesService.to;
     final media = MediaService.to;
-
+    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return SizedBox(
       height: 64,
       width: MediaQuery.of(context).size.width * 0.6,
       child: LiquidGlass(
-        settings: LiquidGlassSettings(
-          blur: 1,
-          thickness: 20,
-          lightIntensity: 1.5,
-          chromaticAberration: 0.3,
-        ),
-        shape: const LiquidRoundedSuperellipse(
-          borderRadius: Radius.circular(32),
-        ),
+        shape: const LiquidRoundedSuperellipse(borderRadius: 32),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Obx(
-              () => _GlassActionButton(
-                icon: fav.isFavoritePath(imagePath)
-                    ? CupertinoIcons.heart_fill
-                    : CupertinoIcons.heart,
-                color: fav.isFavoritePath(imagePath)
-                    ? CupertinoColors.systemRed
-                    : CupertinoColors.white,
-                onTap: () {
+              () => CupertinoButton(
+                padding: EdgeInsets.zero,
+                minSize: 44,
+                onPressed: () {
                   HapticFeedback.mediumImpact();
                   fav.toggleWallpaper(imagePath);
                 },
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.white.withOpacity(
+                      isDark ? 0.09 : 0.17,
+                    ),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: CupertinoColors.white.withOpacity(0.32),
+                      width: 0.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: CupertinoColors.black.withOpacity(0.10),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    fav.isFavoritePath(imagePath)
+                        ? CupertinoIcons.heart_fill
+                        : CupertinoIcons.heart,
+                    color: fav.isFavoritePath(imagePath)
+                        ? CupertinoColors.systemRed
+                        : CupertinoColors.white,
+                    size: 26,
+                  ),
+                ),
               ),
             ),
-            _GlassActionButton(
-              icon: CupertinoIcons.arrow_down_to_line,
-              onTap: () async {
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              minSize: 44,
+              onPressed: () async {
                 HapticFeedback.mediumImpact();
                 await media.saveAssetImageToGallery(imagePath);
               },
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.white.withOpacity(
+                    isDark ? 0.09 : 0.17,
+                  ),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: CupertinoColors.white.withOpacity(0.32),
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: CupertinoColors.black.withOpacity(0.10),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  CupertinoIcons.arrow_down_to_line,
+                  color: CupertinoColors.white,
+                  size: 26,
+                ),
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 玻璃动作按钮 - StatelessWidget
-class _GlassActionButton extends StatelessWidget {
-  const _GlassActionButton({
-    required this.icon,
-    required this.onTap,
-    this.color = CupertinoColors.white,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        height: 44,
-        width: 44,
-        child: LiquidGlass(
-          settings: LiquidGlassSettings(
-            blur: 5,
-            thickness: 20,
-            lightIntensity: 1.5,
-            chromaticAberration: 0.3,
-          ),
-          shape: const LiquidRoundedSuperellipse(
-            borderRadius: Radius.circular(22),
-          ),
-          child: Center(child: Icon(icon, color: color, size: 24)),
         ),
       ),
     );

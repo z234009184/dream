@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:glasso/app/services/theme_service.dart';
 import '../core/theme/app_theme.dart';
 
 /// 渐变背景组件
@@ -10,9 +12,12 @@ class GradientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppTheme.backgroundGradient()),
-      child: child,
-    );
+    return Obx(() {
+      ThemeService.to.themeMode;
+      return Container(
+        decoration: BoxDecoration(gradient: AppTheme.backgroundGradient()),
+        child: child,
+      );
+    });
   }
 }

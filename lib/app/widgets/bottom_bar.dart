@@ -3,7 +3,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:motor/motor.dart';
 
@@ -38,16 +37,8 @@ Matrix4 buildJellyTransform({
   final scaleX = squashX * stretchX;
   final scaleY = squashY * stretchY;
 
-  // Create skew effect for more organic jelly feel
-  final skewX = direction.dx * distortionFactor * 0.2;
-  final skewY = direction.dy * distortionFactor * 0.2;
-
   // Build the transformation matrix
   final matrix = Matrix4.identity();
-
-  // Apply skew transformation
-  matrix.setEntry(0, 1, skewX); // Skew X by Y
-  matrix.setEntry(1, 0, skewY); // Skew Y by X
 
   // Apply scale transformation
   matrix.scale(scaleX, scaleY);
@@ -69,6 +60,7 @@ class LiquidGlassBottomBar extends StatefulWidget {
     this.glassSettings,
     this.showIndicator = true,
     this.indicatorColor,
+    this.fake = false,
   });
 
   final List<LiquidGlassBottomBarTab> tabs;
@@ -82,6 +74,7 @@ class LiquidGlassBottomBar extends StatefulWidget {
   final LiquidGlassSettings? glassSettings;
   final bool showIndicator;
   final Color? indicatorColor;
+  final bool fake;
 
   @override
   State<LiquidGlassBottomBar> createState() => _LiquidGlassBottomBarState();
@@ -98,9 +91,8 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar> {
         LiquidGlassSettings(
           refractiveIndex: 1.21,
           thickness: 30,
-          blur: 3,
+          blur: 8,
           saturation: 1.5,
-          blend: 10,
           lightIntensity: isDark ? .7 : 1,
           ambientStrength: isDark ? .2 : .5,
           lightAngle: math.pi / 4,
@@ -111,51 +103,54 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar> {
 
     return LiquidGlassLayer(
       settings: glassSettings,
-      child: Padding(
-        padding: EdgeInsets.only(
-          right: widget.horizontalPadding,
-          left: widget.horizontalPadding,
-          bottom: widget.bottomPadding,
-          top: widget.bottomPadding,
-        ),
-        child: Row(
-          spacing: widget.spacing,
-          children: [
-            Expanded(
-              child: _TabIndicator(
-                visible: widget.showIndicator,
-                tabIndex: widget.selectedIndex,
-                tabCount: widget.tabs.length,
-                indicatorColor: widget.indicatorColor,
-                onTabChanged: widget.onTabSelected,
-                child: LiquidGlass.inLayer(
-                  clipBehavior: Clip.none,
-                  shape: const LiquidRoundedSuperellipse(
-                    borderRadius: Radius.circular(32),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    height: widget.barHeight,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        for (var i = 0; i < widget.tabs.length; i++)
-                          Expanded(
-                            child: _BottomBarTab(
-                              tab: widget.tabs[i],
-                              selected: widget.selectedIndex == i,
-                              onTap: () => widget.onTabSelected(i),
+      fake: widget.fake,
+      child: LiquidGlassBlendGroup(
+        blend: 10,
+        child: Padding(
+          padding: EdgeInsets.only(
+            right: widget.horizontalPadding,
+            left: widget.horizontalPadding,
+            bottom: widget.bottomPadding,
+            top: widget.bottomPadding,
+          ),
+          child: Row(
+            spacing: widget.spacing,
+            children: [
+              Expanded(
+                child: _TabIndicator(
+                  fake: widget.fake,
+                  visible: widget.showIndicator,
+                  tabIndex: widget.selectedIndex,
+                  tabCount: widget.tabs.length,
+                  indicatorColor: widget.indicatorColor,
+                  onTabChanged: widget.onTabSelected,
+                  child: LiquidGlass.grouped(
+                    clipBehavior: Clip.none,
+                    shape: const LiquidRoundedSuperellipse(borderRadius: 32),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      height: widget.barHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          for (var i = 0; i < widget.tabs.length; i++)
+                            Expanded(
+                              child: _BottomBarTab(
+                                tab: widget.tabs[i],
+                                selected: widget.selectedIndex == i,
+                                onTap: () => widget.onTabSelected(i),
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (widget.extraButton != null)
-              _ExtraButton(config: widget.extraButton!),
-          ],
+              if (widget.extraButton != null)
+                _ExtraButton(config: widget.extraButton!, fake: widget.fake),
+            ],
+          ),
         ),
       ),
     );
@@ -293,17 +288,16 @@ class _BottomBarTab extends StatelessWidget {
 }
 
 class _ExtraButton extends StatefulWidget {
-  const _ExtraButton({required this.config});
+  const _ExtraButton({required this.config, this.fake = false});
 
   final LiquidGlassBottomBarExtraButton config;
+  final bool fake;
 
   @override
   State<_ExtraButton> createState() => _ExtraButtonState();
 }
 
 class _ExtraButtonState extends State<_ExtraButton> {
-  bool _pressed = false;
-
   @override
   Widget build(BuildContext context) {
     final theme = CupertinoTheme.of(context);
@@ -313,23 +307,17 @@ class _ExtraButtonState extends State<_ExtraButton> {
         child: Semantics(
           button: true,
           label: widget.config.label,
-          child: SingleMotionBuilder(
-            motion: Motion.interactiveSpring(),
-            value: _pressed ? 1.2 : 1,
-            builder: (context, value, child) =>
-                Transform.scale(scale: value, child: child),
-            child: LiquidGlass.inLayer(
-              shape: const LiquidOval(),
-              child: GlassGlow(
-                child: Container(
-                  height: widget.config.size,
-                  width: widget.config.size,
-                  child: Center(
-                    child: Icon(
-                      widget.config.icon,
-                      size: 24,
-                      color: theme.textTheme.textStyle.color,
-                    ),
+          child: LiquidGlass.grouped(
+            shape: const LiquidOval(),
+            child: GlassGlow(
+              child: Container(
+                height: widget.config.size,
+                width: widget.config.size,
+                child: Center(
+                  child: Icon(
+                    widget.config.icon,
+                    size: 24,
+                    color: theme.textTheme.textStyle.color,
                   ),
                 ),
               ),
@@ -349,6 +337,7 @@ class _TabIndicator extends StatefulWidget {
     required this.onTabChanged,
     this.visible = true,
     this.indicatorColor,
+    this.fake = false,
   });
 
   final int tabIndex;
@@ -357,6 +346,7 @@ class _TabIndicator extends StatefulWidget {
   final Widget child;
   final Color? indicatorColor;
   final ValueChanged<int> onTabChanged;
+  final bool fake;
 
   @override
   State<_TabIndicator> createState() => _TabIndicatorState();
@@ -411,7 +401,6 @@ class _TabIndicatorState extends State<_TabIndicator>
   }
 
   void _onDragDown(DragDownDetails details) {
-    HapticFeedback.mediumImpact();
     setState(() {
       _isDown = true;
       xAlign = _getAlignmentFromGlobalPostition(details.globalPosition);
@@ -537,12 +526,13 @@ class _TabIndicatorState extends State<_TabIndicator>
         converter: SingleMotionConverter(),
         value: xAlign,
         motion: _isDragging
-            ? const Motion.interactiveSpring()
-            : const Motion.bouncySpring(),
+            ? const Motion.interactiveSpring(snapToEnd: true)
+            : const Motion.bouncySpring(snapToEnd: true),
         builder: (context, value, velocity, child) {
           final alignment = Alignment(value, 0);
           return SingleMotionBuilder(
             motion: const Motion.snappySpring(
+              snapToEnd: true,
               duration: Duration(milliseconds: 300),
             ),
             value:
@@ -579,24 +569,28 @@ class _TabIndicatorState extends State<_TabIndicator>
                       tabCount: widget.tabCount,
                       alignment: alignment,
                       thickness: thickness,
-                      child: LiquidGlass(
+                      child: LiquidGlass.withOwnLayer(
+                        fake: widget.fake,
                         settings: LiquidGlassSettings(
+                          visibility: thickness,
                           glassColor: Color.from(
-                            alpha: .1 * thickness,
+                            alpha: .1,
                             red: 1,
                             green: 1,
                             blue: 1,
                           ),
-                          saturation: 1 + .5 * thickness,
+                          saturation: 1.5,
                           refractiveIndex: 1.15,
-                          thickness: thickness * 15,
+                          thickness: 20,
                           lightIntensity: 2,
                           chromaticAberration: .5,
+                          blur: 0,
                         ),
+
                         shape: const LiquidRoundedSuperellipse(
-                          borderRadius: Radius.circular(64),
+                          borderRadius: 64,
                         ),
-                        child: const SizedBox.expand(),
+                        child: GlassGlow(child: const SizedBox.expand()),
                       ),
                     ),
                 ],
